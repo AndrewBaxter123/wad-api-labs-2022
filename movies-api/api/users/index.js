@@ -18,10 +18,16 @@ router.post('/',asyncHandler( async (req, res, next) => {
       res.status(401).json({success: false, msg: 'Please pass username and password.'});
       return next();
     }
+    const regex = new RegExp(/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]{5,})$/);
     if (req.query.action === 'register') {
+        if(req.body.password.match(regex)) {
       await User.create(req.body);
       res.status(201).json({code: 201, msg: 'Successful created new user.'});
-    } else {
+    } 
+    else if(!req.body.password.match(regex)) {
+        res.status(500).json({code: 500, msg: 'Password needs to be longer than 5 characters while also containing at least 1 digit and letter'});
+    }
+    else {
       const user = await User.findByUserName(req.body.username);
         if (!user) return res.status(401).json({ code: 401, msg: 'Authentication failed. User not found.' });
         user.comparePassword(req.body.password, (err, isMatch) => {
@@ -35,7 +41,8 @@ router.post('/',asyncHandler( async (req, res, next) => {
           }
         });
       }
-  }));
+  }
+}));
 
 // Update a user
 router.put('/:id', async (req, res) => {
