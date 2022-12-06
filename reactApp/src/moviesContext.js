@@ -1,3 +1,6 @@
+//Once authenticated, the movies context uses the getMovies() function to get the movie list. 
+//The app accesses the JWT token in the local storage of the browser and includes this HTTP requests to the API.
+
 import React, { useState, createContext, useEffect, useReducer } from "react";
 import { getMovies } from "./api/movie-api";
 
