@@ -6,14 +6,11 @@ import './db';
 import './seedData';
 import usersRouter from './api/users';
 import session from 'express-session';
-// replace existing import with passport strategy​
 import passport from './authenticate';
 
 dotenv.config();
 
 const errHandler = (err, req, res, next) => {
-  /* if the error in development then send stack trace to display whole error,
-  if it's in production then just send error message  */
   if(process.env.NODE_ENV === 'production') {
     return res.status(500).send(`Something went wrong!`);
   }
@@ -22,16 +19,18 @@ const errHandler = (err, req, res, next) => {
 
 const app = express();
 
-const port = process.env.PORT;
-
+// replace app.use(session([... with the following:
 app.use(passport.initialize());
 
+const port = process.env.PORT;
+
 app.use(express.json());
+
 app.use('/api/genres', genresRouter);
 app.use('/api/users', usersRouter);
-//update /api/Movie route
 // Add passport.authenticate(..)  to middleware stack for protected routes​
 app.use('/api/movies', passport.authenticate('jwt', {session: false}), moviesRouter);
+app.use(errHandler);
 
 
 
