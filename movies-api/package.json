@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon --exec babel-node index.js"
   },
-  "author": "BarnesIan",
+  "author": "AndrewBaxter/20092531",
   "license": "ISC",
   "devDependencies": {
     "babel-cli": "^6.26.0",
