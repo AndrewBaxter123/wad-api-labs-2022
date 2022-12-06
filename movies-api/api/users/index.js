@@ -12,34 +12,27 @@ router.get('/', async (req, res) => {
     res.status(200).json(users);
 });
 
-// Register OR authenticate a user
-router.post('/',asyncHandler( async (req, res, next) => {
-    if (!req.body.username || !req.body.password) {
-      res.status(401).json({success: false, msg: 'Please pass username and password.'});
-      return next();
-    }
-    const regex = new RegExp(/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]{5,})$/);
-    if (req.query.action === 'register') {
-        if(req.body.password.match(regex)) {
-      await User.create(req.body);
-      res.status(201).json({code: 201, msg: 'Successful created new user.'});
-    } 
-    else if(!req.body.password.match(regex)) {
-        res.status(500).json({code: 500, msg: 'Password needs to be longer than 5 characters while also containing at least 1 digit and letter'});
-    }
-    else {
+
+// register
+router.post('/', asyncHandler(async (req, res) => {
+  if (req.query.action === 'register') {  //if action is 'register' then save to DB
+      await User(req.body).save();
+      res.status(201).json({
+          code: 201,
+          msg: 'Successful created new user.',
+      });
+  }
+  else {  //NEW CODE!!!
       const user = await User.findByUserName(req.body.username);
-        if (!user) return res.status(401).json({ code: 401, msg: 'Authentication failed. User not found.' });
-        user.comparePassword(req.body.password, (err, isMatch) => {
-          if (isMatch && !err) {
-            // if user is found and password matches, create a token
-            const token = jwt.sign(user.username, process.env.SECRET);
-            // return the information including token as JSON
-            res.status(200).json({success: true, token: 'BEARER ' + token});
-          } else {
-            res.status(401).json({code: 401,msg: 'Authentication failed. Wrong password.'});
-          }
-        });
+      if (user.comparePassword(req.body.password)) {
+          req.session.user = req.body.username;
+          req.session.authenticated = true;
+          res.status(200).json({
+              success: true,
+              token: "temporary-token"
+            });
+      } else {
+          res.status(401).json('authentication failed');
       }
   }
 }));

@@ -15,13 +15,12 @@ const Schema = mongoose.Schema;
     return this.findOne({ username: username });
   };
   
-  UserSchema.methods.comparePassword = function (passw, callback) {
-    bcrypt.compare(passw, this.password, (err, isMatch) => {
-      if (err) {
-        return callback(err);
-      }
-      callback(null, isMatch);
-    });
+  UserSchema.methods.comparePassword = function (candidatePassword) {
+    const isMatch = this.password === candidatePassword;
+    if (!isMatch) {
+      throw new Error('Password mismatch');
+    }
+    return this;
   };
 
   UserSchema.pre('save', function(next) {
