@@ -57,19 +57,15 @@ router.post('/:userName/favourites', asyncHandler(async (req, res) => {
   const userName = req.params.userName;
   const movie = await movieModel.findByMovieDBId(newFavourite);
   const user = await User.findByUserName(userName);
-  if(!user.favourites.includes(movie._id)) {
-    await user.favourites.push(movie._id);
-    await user.save();
-    res.status(201).json(user);
-} else {
-    res.status(501).json({code:501, msg:"You've already added that movie to your favourites!"});
-}
+  await user.favourites.push(movie._id);
+  await user.save(); 
+  res.status(201).json(user); 
 }));
 
 router.get('/:userName/favourites', asyncHandler( async (req, res) => {
-    const userName = req.params.userName;
-    const user = await User.findByUserName(userName).populate('favourites');
-    res.status(200).json(user.favourites);
-  }));
+  const userName = req.params.userName;
+  const user = await User.findByUserName(userName).populate('favourites');
+  res.status(200).json(user.favourites);
+}));
 
 export default router;
